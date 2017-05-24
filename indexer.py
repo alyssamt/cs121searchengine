@@ -31,7 +31,7 @@ class MyHTMLParser(HTMLParser):
         self.end_tag = None
 
     def handle_starttag(self, tag, attrs):
-        if tag == 'b' or re.match(r'h\d',tag):
+        if tag == 'b' or re.match(r'h\d',tag) or tag == 'strong':
             self.increase_weight = True
         # print "Start tag:", tag
         for attr in attrs:
@@ -40,7 +40,7 @@ class MyHTMLParser(HTMLParser):
             #print "     attr:", attr
 
     def handle_endtag(self, tag):
-        if tag == 'b' or re.match(r'h\d',tag):
+        if tag == 'b' or re.match(r'h\d',tag) or tag == 'strong':
             self.increase_weight = False
         if tag == self.end_tag:
             self.end_tag = None
