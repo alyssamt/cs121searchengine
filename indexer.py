@@ -25,31 +25,47 @@ to the single index.
 #####################
 
 class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.increase_weight = False
+        self.end_tag = None
 
     def handle_starttag(self, tag, attrs):
-        #print "Start tag:", tag
+        if tag == 'b' or re.match(r'h\d',tag):
+            self.increase_weight = True
+        # print "Start tag:", tag
         for attr in attrs:
-            pass #print "     attr:", attr
+            if attr[0] == 'style' and re.match(r'font-weight:\s?bold',attr[1]):
+                self.end_tag = tag
+            #print "     attr:", attr
 
     def handle_endtag(self, tag):
-        pass #print "End tag  :", tag
+        if tag == 'b' or re.match(r'h\d',tag):
+            self.increase_weight = False
+        if tag == self.end_tag:
+            self.end_tag = None
+        #pass #print "End tag  :", tag
 
     def handle_data(self, data):
 
         global index
 
-        #print "Data     :", data
+        # print "Data     :", data
 
         tokens = re.split('[^a-zA-Z0-9]', data)
         #data = filter(lambda x: x in printable, data)
         #tokens = nltk.word_tokenize(data)
 
         #print(tokens)
-        
+
         for t in tokens:
             if t: # Ignore empty string
                 t = t.lower()
-                index[t][curr_docid] += 1
+                if self.increase_weight or self.end_tag != None:
+                    print('+2')
+                    index[t][curr_docid] += 2
+                else:
+                    index[t][curr_docid] += 1
                 docs.add(curr_docid)
 
     def handle_comment(self, data):
@@ -120,7 +136,7 @@ def index_doc(d, f):
 
 
 def write_index_to_file(file="index.txt"):
-    
+
     with open(file, 'w') as f:
         d = defaultdict_to_dict(index)
         f.write(json.dumps(d))
@@ -138,9 +154,8 @@ if __name__ == "__main__":
         for f in range(num_files):
             index_doc(d, f)
 
-    write_index_to_file()  
+    write_index_to_file()
 
     print("Number of documents: {}".format(len(docs)))
     print("Number of unique words: {}".format(len(index)))
     print("Time elapsed: {}".format(time.time() - start))
-
