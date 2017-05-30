@@ -29,22 +29,34 @@ class MyHTMLParser(HTMLParser):
         HTMLParser.__init__(self)
         self.increase_weight = False
         self.end_tag = None
+        self.title = True # true if not inside a body tag (see additional information pdf for why...)
 
     def handle_starttag(self, tag, attrs):
+        if tag == 'body':
+            self.title = False
+
         if tag == 'b' or re.match(r'h\d',tag) or tag == 'strong':
             self.increase_weight = True
-        # print "Start tag:", tag
+
         for attr in attrs:
             if attr[0] == 'style' and re.match(r'font-weight:\s?bold',attr[1]):
                 self.end_tag = tag
-            #print "     attr:", attr
+
 
     def handle_endtag(self, tag):
         if tag == 'b' or re.match(r'h\d',tag) or tag == 'strong':
             self.increase_weight = False
+
         if tag == self.end_tag:
             self.end_tag = None
-        #pass #print "End tag  :", tag
+
+        if tag == 'body':
+            self.title = True #not in body anymore
+
+            #if we reach the end of a body reset the other flags
+            self.end_tag = None
+            self.increase_weight = False
+
 
     def handle_data(self, data):
 
@@ -61,8 +73,9 @@ class MyHTMLParser(HTMLParser):
         for t in tokens:
             if t: # Ignore empty string
                 t = t.lower()
-                if self.increase_weight or self.end_tag != None:
-                    print('+2')
+                if self.title:
+                    index[t][curr_docid] += 4
+                elif self.increase_weight or self.end_tag != None:
                     index[t][curr_docid] += 2
                 else:
                     index[t][curr_docid] += 1
