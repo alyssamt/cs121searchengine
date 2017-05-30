@@ -28,9 +28,14 @@ def get_links(query):
         retrieve(query.split())
         return get_links(query)
 
+def verify_indexing():
+    if not os.path.exists('index.txt') or os.path.getsize('index.txt') <= 0:
+        print('indexing...')
+        os.system('python indexer.py')
+
 if __name__ == '__main__':
     c = None
-    os.system('indexer.py')
+    verify_indexing()
     c = raw_input('Enter a search term (q to quit):')
     while not should_terminate(c):
         print ''
@@ -48,13 +53,6 @@ if __name__ == '__main__':
 
         print '\n'
         c = raw_input('Enter a search term:')
-
-
-
-
-
-
-
 
 
     print '\n#############\n# Goodbye!! #\n#############\n'
