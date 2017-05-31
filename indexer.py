@@ -152,6 +152,9 @@ def write_index_to_file(file="index.txt"):
 
     with open(file, 'w') as f:
         d = defaultdict_to_dict(index)
+        for term,docs in index.iteritems():
+            for doc,count in docs.iteritems():
+                d[term][doc] = tf_idf(term,doc)
         f.write(json.dumps(d))
 
 

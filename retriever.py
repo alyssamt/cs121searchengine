@@ -80,4 +80,3 @@ if __name__ == "__main__":
         exit()
 
     retrieve(sys.argv[1:])
-
