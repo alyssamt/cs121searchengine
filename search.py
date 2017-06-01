@@ -1,13 +1,15 @@
 import os
+import re
+from retriever import Retriever
 
-from retriever import retrieve
 
 ####################
 # GLOBAL VARIABLES #
 ####################
 
 terminate_terms = set(['exit','q','quit','qq','bye','goodbye'])
-links_dir = 'retrieved_links/'
+pattern = re.compile('([^\s\w]|_)+')
+
 
 #############
 # FUNCTIONS #
@@ -16,43 +18,53 @@ links_dir = 'retrieved_links/'
 def should_terminate(command):
     return command in terminate_terms
 
-def get_links(query):
-    links = []
-    try:
-        print query.replace(' ','_')+'.txt'
-        with open(links_dir+query.replace(' ','_')+'.txt','r') as link_file:
-            for line in link_file:
-                links.append(line)
-        return links
-    except IOError:
-        retrieve(query.split())
-        return get_links(query)
+
+def get_links(query, retriever):
+    query = pattern.sub('', query).lower() # Strip non-alphanumeric
+    if not query:
+        return []
+    return retriever.retrieve(query.split())
+
 
 def verify_indexing():
     if not os.path.exists('index.txt') or os.path.getsize('index.txt') <= 0:
-        print('indexing...')
+        print('Indexing...')
         os.system('python indexer.py')
 
+
+########
+# MAIN #
+########
+
 if __name__ == '__main__':
-    c = None
+
     verify_indexing()
-    c = raw_input('Enter a search term (q to quit):')
+    r = Retriever()
+    c = raw_input('Enter a search term (q to quit): ')
+    ask = True
+
     while not should_terminate(c):
-        print ''
-        if should_terminate(c):
-            break
-
         i = 0
-        for link in get_links(c):
-            print link
+        ask = True
+        print('\n############ RESULTS ############\n')
+
+        for link in get_links(c, r):
+            print("{}\n".format(link))
             i += 1
+
             if i % 10 == 0:
-                cont = raw_input('press return to continue... (s to exit search)')
-                if cont != '':
+                print('#################################\n')
+                print("Press enter to list more results.")
+                c = raw_input('Enter a search term (q to quit): ')
+                if c != '':
+                    ask = False
                     break
+                print('\n#################################\n')
 
-        print '\n'
-        c = raw_input('Enter a search term:')
+        if ask:
+            print('#################################\n')
+            c = raw_input('Enter a search term (q to quit): ')
 
 
-    print '\n#############\n# Goodbye!! #\n#############\n'
+    print '\n############\n# Goodbye! #\n############\n'
+

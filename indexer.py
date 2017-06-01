@@ -25,11 +25,13 @@ to the single index.
 #####################
 
 class MyHTMLParser(HTMLParser):
+
     def __init__(self):
         HTMLParser.__init__(self)
         self.increase_weight = False
         self.end_tag = None
         self.title = True # true if not inside a body tag (see additional information pdf for why...)
+
 
     def handle_starttag(self, tag, attrs):
         if tag == 'body':
@@ -61,14 +63,7 @@ class MyHTMLParser(HTMLParser):
     def handle_data(self, data):
 
         global index
-
-        # print "Data     :", data
-
         tokens = re.split('[^a-zA-Z0-9]', data)
-        #data = filter(lambda x: x in printable, data)
-        #tokens = nltk.word_tokenize(data)
-
-        #print(tokens)
 
         for t in tokens:
             if t: # Ignore empty string
@@ -80,23 +75,6 @@ class MyHTMLParser(HTMLParser):
                 else:
                     index[t][curr_docid] += 1
                 docs.add(curr_docid)
-
-    def handle_comment(self, data):
-        pass #print "Comment  :", data
-
-    def handle_entityref(self, name):
-        c = unichr(name2codepoint[name])
-        #print "Named ent:", c
-
-    def handle_charref(self, name):
-        if name.startswith('x'):
-            c = unichr(int(name[1:], 16))
-        else:
-            c = unichr(int(name))
-        #print "Num ent  :", c
-
-    def handle_decl(self, data):
-        pass #print "Decl     :", data
 
 
 ####################
@@ -128,7 +106,6 @@ def tf_idf(term, docid):
 
 
 def index_doc(d, f):
-
     global curr_docid
     curr_docid = "{}/{}".format(d, f)
     fname = "WEBPAGES_CLEAN/{}".format(curr_docid)
@@ -139,17 +116,10 @@ def index_doc(d, f):
     with open(fname, 'r') as infile:
         contents = infile.read()
 
-    #print("\nDOCUMENT {}/{}".format(d, f))
-    #print(contents)
-
     parser.feed(contents)
-
-    #for word in index:
-    #    print("{}: {}".format(word, dict(index[word])))
 
 
 def write_index_to_file(file="index.txt"):
-
     with open(file, 'w') as f:
         d = defaultdict_to_dict(index)
         for term,docs in index.iteritems():
@@ -157,6 +127,10 @@ def write_index_to_file(file="index.txt"):
                 d[term][doc] = tf_idf(term,doc)
         f.write(json.dumps(d))
 
+
+########
+# MAIN #
+########
 
 if __name__ == "__main__":
 
@@ -175,3 +149,4 @@ if __name__ == "__main__":
     print("Number of documents: {}".format(len(docs)))
     print("Number of unique words: {}".format(len(index)))
     print("Time elapsed: {}".format(time.time() - start))
+    

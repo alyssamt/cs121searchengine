@@ -1,76 +1,52 @@
 import os
+import re
 import sys
 import json
+import time
+import string
 from collections import defaultdict
 
 
-def retrieve(terms, index_file="index.txt"):
+class Retriever(object):
 
-    # Load index and document map
-
-    print("Loading index")
-    with open(index_file, 'r') as f:
-        print("Reading {}".format(index_file))
-        str = f.read()
-        print("Converting to JSON")
-        index = json.loads(str)
-
-    print("Loading document map")
-    with open("WEBPAGES_CLEAN/bookkeeping.json", 'r') as f:
-        doc_map = json.loads(f.read())
+    def __init__(self, index_file="index.txt"):
+        self.load_index(index_file)
 
 
-    # Search for term(s)
+    def load_index(self, index_file):
+        # Load index and document map
+        print("Loading index... (~8 seconds)")
+        with open(index_file, 'r') as f:
+            str = f.read()
+            self.index = json.loads(str)
 
-    dirname = "retrieved_links"
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-
-    for t in terms:
-
-        doc_count = 0
-        t = t.lower()
-        print("Searching for {}".format(t))
-
-        if t not in index:
-            print("{} not found in index".format(t))
-
-        fname = "{}/{}.txt".format(dirname, t)
-
-        with open(fname, 'w') as f:
-            for doc in index[t]:
-                f.write("{}\n".format(doc_map[doc]))
-                doc_count += 1
-
-        print("{} links written to {}".format(doc_count, fname))
+        print("Loading document map...")
+        with open("WEBPAGES_CLEAN/bookkeeping.json", 'r') as f:
+            self.doc_map = json.loads(f.read())
 
 
-    # For multiple terms, find intersection
+    def retrieve(self, terms):
+        #print("SEARCH TERMS: {}".format(terms))
+        all_links = []
 
-    if len(terms) > 1:
-
-        links = set()
-        doc_count = 0
-        fname = "{}/{}.txt".format(dirname, '_'.join(terms))
-
+        # Search for term(s)
         for t in terms:
+            cur_links = set()
 
-            with open("{}/{}.txt".format(dirname, t), 'r') as f:
-                tmp = set(f.read().split())
+            if t in self.index.keys():
+                for doc in self.index[t]:
+                    cur_links.add(self.doc_map[doc])
 
-            if len(links) == 0:
-                links = tmp
-            else:
-                links = links.intersection(tmp)
+            all_links.append(cur_links)
 
+        final_links = all_links[0]
 
-        with open(fname, 'w') as f:
-            for l in links:
-                f.write("{}\n".format(l))
-                doc_count += 1
+        # For multiple terms, find intersection
+        if len(terms) > 1:
+            for i in range(1, len(all_links)):
+                final_links = final_links.intersection(all_links[i])
 
-
-        print("{} links written to {}".format(doc_count, fname))
+        return final_links
 
 
 if __name__ == "__main__":
@@ -80,3 +56,4 @@ if __name__ == "__main__":
         exit()
 
     retrieve(sys.argv[1:])
+
