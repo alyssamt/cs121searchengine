@@ -101,5 +101,5 @@ if __name__ == '__main__':
             c = raw_input('Enter a search term (q to quit): ')
 
 
-    print '\n############\n# Goodbye! #\n############\n'
+    print ('\n############\n# Goodbye! #\n############\n')
 
