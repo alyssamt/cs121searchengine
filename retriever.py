@@ -3,6 +3,8 @@ import re
 import sys
 import json
 import time
+import copy
+import heapq
 import string
 from collections import defaultdict
 
@@ -26,27 +28,21 @@ class Retriever(object):
 
 
     def retrieve(self, terms):
-        #print("SEARCH TERMS: {}".format(terms))
-        all_links = []
+        doc_dict = defaultdict(int)
 
-        # Search for term(s)
+        # Gather all docs which contain at least one term
         for t in terms:
-            cur_links = set()
-
             if t in self.index.keys():
-                for doc in self.index[t]:
-                    cur_links.add(self.doc_map[doc])
+                for doc, weight in self.index[t].items():
+                    doc_dict[doc] -= weight # Invert weight since heapq is min-heap
 
-            all_links.append(cur_links)
+        # Convert dict to priority queue based on tf-idf weights
+        pq = []
+        for doc, weight in doc_dict.items():
+            pq.append((weight, self.doc_map[doc]))
 
-        final_links = all_links[0]
-
-        # For multiple terms, find intersection
-        if len(terms) > 1:
-            for i in range(1, len(all_links)):
-                final_links = final_links.intersection(all_links[i])
-
-        return final_links
+        heapq.heapify(pq)
+        return pq
 
 
 if __name__ == "__main__":

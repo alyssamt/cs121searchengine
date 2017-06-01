@@ -1,5 +1,10 @@
 import os
 import re
+import sys
+import heapq
+import urlparse
+import requests
+import lxml.html
 from retriever import Retriever
 
 
@@ -32,6 +37,33 @@ def verify_indexing():
         os.system('python indexer.py')
 
 
+def print_url(url):
+    # Get webpage content
+    try:
+        r = requests.get(url, timeout=2)
+    except requests.exceptions.MissingSchema:
+        return print_url("http://{}".format(url))
+    except:
+        return False
+
+    # Print URL and title
+    try:
+        html = lxml.html.fromstring(r.text)
+        print(url)
+
+        try: # Some valid webpages don't have titles
+            print(html.find(".//title").text.strip())
+        except:
+            pass
+
+        print('')
+        sys.stdout.flush()
+        return True
+
+    except:
+        return False
+
+
 ########
 # MAIN #
 ########
@@ -48,11 +80,14 @@ if __name__ == '__main__':
         ask = True
         print('\n############ RESULTS ############\n')
 
-        for link in get_links(c, r):
-            print("{}\n".format(link))
-            i += 1
+        link_pq = get_links(c, r)
+        for tuple in link_pq:
+            link = tuple[1]
 
-            if i % 10 == 0:
+            if print_url(link):
+                i += 1
+
+            if i != 0 and i % 10 == 0:
                 print('#################################\n')
                 print("Press enter to list more results.")
                 c = raw_input('Enter a search term (q to quit): ')

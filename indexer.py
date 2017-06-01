@@ -11,15 +11,6 @@ from collections import defaultdict
 from htmlentitydefs import name2codepoint
 
 
-'''
-TO-DO:
-
-Words in bold and in heading (h1, h2, h3) should be treated as more important than the other
-words. You can handle this as you want: create separate indexes, or add metadata about the words
-to the single index.
-'''
-
-
 #####################
 # CLASS DEFINITIONS #
 #####################
@@ -149,4 +140,4 @@ if __name__ == "__main__":
     print("Number of documents: {}".format(len(docs)))
     print("Number of unique words: {}".format(len(index)))
     print("Time elapsed: {}".format(time.time() - start))
-    
+
