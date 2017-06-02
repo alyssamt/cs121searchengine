@@ -110,7 +110,6 @@ def index_doc(d, f):
 
 
 def write_index_to_file(file="index.txt"):
-    print ("indexer check")
     with open(file, 'w') as f:
         d = defaultdict_to_dict(index)
         for term,docs in index.iteritems():

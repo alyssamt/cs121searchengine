@@ -7,7 +7,8 @@ import requests
 import lxml.html
 import indexer
 from retriever import Retriever
-
+import requests.packages.urllib3
+requests.packages.urllib3.disable_warnings()
 
 ####################
 # GLOBAL VARIABLES #
