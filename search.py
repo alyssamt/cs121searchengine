@@ -34,7 +34,7 @@ def get_links(query, retriever):
 
 def verify_indexing():
     if not os.path.exists('index.txt') or os.path.getsize('index.txt') <= 0:
-        print('Indexing...')
+        print('Indexing... (~3 minutes)')
         indexer.main()
 
 
