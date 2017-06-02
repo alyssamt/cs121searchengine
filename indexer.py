@@ -1,6 +1,5 @@
 import re
 import json
-import nltk
 import time
 import string
 import os.path
@@ -111,6 +110,7 @@ def index_doc(d, f):
 
 
 def write_index_to_file(file="index.txt"):
+    print ("indexer check")
     with open(file, 'w') as f:
         d = defaultdict_to_dict(index)
         for term,docs in index.iteritems():
@@ -123,8 +123,7 @@ def write_index_to_file(file="index.txt"):
 # MAIN #
 ########
 
-if __name__ == "__main__":
-
+def main():
     start = time.time()
 
     # Decrease these nums to use fewer files for testing
@@ -140,4 +139,8 @@ if __name__ == "__main__":
     print("Number of documents: {}".format(len(docs)))
     print("Number of unique words: {}".format(len(index)))
     print("Time elapsed: {}".format(time.time() - start))
+    
+
+if __name__ == "__main__":
+    main()
 

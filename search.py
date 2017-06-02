@@ -5,6 +5,7 @@ import heapq
 import urlparse
 import requests
 import lxml.html
+import indexer
 from retriever import Retriever
 
 
@@ -34,7 +35,7 @@ def get_links(query, retriever):
 def verify_indexing():
     if not os.path.exists('index.txt') or os.path.getsize('index.txt') <= 0:
         print('Indexing...')
-        os.system('python indexer.py')
+        indexer.main()
 
 
 def print_url(url):
